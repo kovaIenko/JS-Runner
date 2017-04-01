@@ -3,6 +3,7 @@
  */
 const HEIGTH_PERSON=70;
 const HEIGTH_GROUND=122;
+const  COUNT=50;
 const HEIGTH_BLOCK=25;
 
 
@@ -18,8 +19,23 @@ var game = new Phaser.Game(
     }
 );
 
+
+var BootGameState = new Phaser.State();
+
+BootGameState.create = function() {
+    LoadingText = Game.add.text(Game.world.width / 2, Game.world.height / 2, LOADING_TEXT, {
+        font: '32px "Press Start 2P"',
+        fill: '#FFFFFF',
+        stroke: '#000000',
+        strokeThickness: 3,
+        align: 'center'
+    });
+    LoadingText.anchor.setTo(0.5, 0.5);
+    Game.state.start('Preloader', false, false);
+};
+
 var current=0; //змінна дл отриманн, поточного значення блоку
-var current_heigth_level
+var current_heigth_level;
 
  //загрузка контента
 function preload() {
@@ -37,18 +53,20 @@ function preload() {
     game.load.image('run5', "img/Person/5.png");
     game.load.image('run6', "img/Person/6.png");
     //
+
+    game.state.add('Boot', BootGameState, false);
 }
 var platforms; // група об'єктів, на яких Персонаж буде пригати
 var player;
-
 //ініціалізація початкових параметрів(фон, карта, персонажі..)
 function create() {
+
 
     //Фізика
     game.physics.startSystem(Phaser.Physics.ARCADE);
 
-    game.add.sprite(0, 0, 'background');
-    game.add.sprite(0,378,'ground');
+   game.add.sprite(0, 0, 'background');
+   game.add.sprite(0,378,'ground');
 
 
     // Створюємо групу для бордюрів, на які Персонаж буде пригати
@@ -62,60 +80,78 @@ function create() {
  //   ground.scale.setTo(2, 2);
 
     // підлога непорушна
+    //background.body.immovable =true;
     ground.body.immovable = true;
  //Персонаж
 
-    player=game.add.sprite(50, game.world.height - HEIGTH_GROUND-HEIGTH_PERSON-300, 'person');
-    var walk = player.animations.add('walk');
-    player.animations.play('walk', 30, true);
+    player=game.add.sprite(300, game.world.height - HEIGTH_GROUND-HEIGTH_PERSON-300, 'person');
+   // var walk = player.animations.add('walk');
+  //  player.animations.play('walk', 30, true);
     game.physics.arcade.enable(player); //фізика для персонажа
 
 
     //  Налаштування персонажа
-    player.body.bounce.y = 0.2;
+    player.body.bounce.y = 0.3;
+   // player.body.immovable = true;
     player.body.gravity.y = 300; //швидше буде падати
-   player.body.velocity.x = 300;
+  //
    player.body.collideWorldBounds = true;
 
 
-    cursors = game.input.keyboard.createCursorKeys();
+
+
+    line();
 }
+var start_;
+var end_;
+var center_;
 //оновлення після зміни на Canvas
 function update() {
-
-     current_heigth_level=0;
-    var next_level=getRandomInt(0,current_heigth_level+3);
-    current=line(current,next_level);
     game.physics.arcade.collide(player, platforms);
+
+    cursors = game.input.keyboard.createCursorKeys();
+
+
+
   //
-
-
-
 }
 
 function getRandomInt(min, max) {
     return Math.floor(Math.random() * (max - min + 1)) + min;
 }
 
-var start_;
-var end_
-var center_;
- //start- початок побудови
-function line(start,next) {
-    if (start == 0)
-        start_ = platforms.create((start + 43), game.world.height - HEIGTH_GROUND - HEIGTH_BLOCK - HEIGTH_PERSON - next * HEIGTH_BLOCK, 'start');
-    else
-        start_ = platforms.create(43 + (start += 43), game.world.height - HEIGTH_GROUND - HEIGTH_BLOCK - HEIGTH_PERSON - next * HEIGTH_BLOCK, 'start');
-    start += 43;
-    var i = 0;
-    for (i = 0; i < getRandomInt(0, 2); i++) {
-        center_ = platforms.create((start += 43), game.world.height - HEIGTH_GROUND - HEIGTH_BLOCK - HEIGTH_PERSON - next * HEIGTH_BLOCK, 'center');
-        center_.body.immovable = true;
-    }
 
-    end_ = platforms.create(start += 43, game.world.height - HEIGTH_GROUND - HEIGTH_BLOCK - HEIGTH_PERSON - next * HEIGTH_BLOCK, 'end');
-    start += 100;
-    start_.body.immovable = true;
-    end_.body.immovable = true;
-    return start;
+ //start- початок побудови
+function line() {
+    var start=0;
+    var next=1;
+    var current_heigth_level =0;
+    for(var r=0;r<COUNT;r++) {
+
+        next =getRandomInt(0,current_heigth_level+2);
+        if (start == 0)
+            start_ = platforms.create((start + 43), game.world.height - HEIGTH_GROUND - HEIGTH_BLOCK - HEIGTH_PERSON - next * HEIGTH_BLOCK, 'start');
+        else
+            start_ = platforms.create(43 + (start += 43), game.world.height - HEIGTH_GROUND - HEIGTH_BLOCK - HEIGTH_PERSON - next * HEIGTH_BLOCK, 'start');
+        start += 43;
+      //  start_.body.immovable = true;
+
+        var i = 0;
+        for (i = 0; i < getRandomInt(0, 2); i++) {
+            center_ = platforms.create((start += 43), game.world.height - HEIGTH_GROUND - HEIGTH_BLOCK - HEIGTH_PERSON - next * HEIGTH_BLOCK, 'center');
+            center_.body.immovable = true;
+            center_.body.velocity.x = - 250;
+        }
+
+        end_ = platforms.create(start += 43, game.world.height - HEIGTH_GROUND - HEIGTH_BLOCK - HEIGTH_PERSON - next * HEIGTH_BLOCK, 'end');
+        start += 100;
+
+current_heigth_level =3;
+       start_.body.immovable = true;
+        end_.body.immovable = true;
+        start_.body.velocity.x = - 250;
+        end_.body.velocity.x = - 250;
+
+
+    }
 }
