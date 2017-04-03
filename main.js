@@ -4,7 +4,8 @@
 const HEIGTH_PERSON=70;
 const HEIGTH_GROUND=122;
 const HEIGTH_BLOCK=25;
-
+const HEIGHT_SCREEN = 500;
+const WIDTH_SCREEN = 800;
 
 var game = new Phaser.Game(
     800,
@@ -40,7 +41,7 @@ function preload() {
 }
 var platforms; // група об'єктів, на яких Персонаж буде пригати
 var player;
-
+var pause_label;
 //ініціалізація початкових параметрів(фон, карта, персонажі..)
 function create() {
 
@@ -66,8 +67,7 @@ function create() {
  //Персонаж
 
     player=game.add.sprite(50, game.world.height - HEIGTH_GROUND-HEIGTH_PERSON-300, 'person');
-    var walk = player.animations.add('walk');
-    player.animations.play('walk', 30, true);
+
     game.physics.arcade.enable(player); //фізика для персонажа
 
 
@@ -79,6 +79,29 @@ function create() {
 
 
     cursors = game.input.keyboard.createCursorKeys();
+
+    // Меню паузи
+    pause_label = game.add.text(WIDTH_SCREEN-100,20,'Pause',{ font: '24px Arial', fill: '#fff' });
+    pause_label.inputEnabled = true;
+    pause_label.events.onInputUp.add(function () {
+        game.paused = true;
+       // menu = game.add.sprite(WIDTH_SCREEN/2,HEIGHT_SCREEN/2,'menu');
+       // menu.anchor.setTo(0.5,0.5);
+        choiseLabel = game.add.text(WIDTH_SCREEN/2, HEIGHT_SCREEN-150, 'Click outside menu to continue', { font: '30px Arial', fill: '#fff' });
+        choiseLabel.anchor.setTo(0.5, 0.5);
+    });
+
+
+    game.input.onDown.add(unpause,self);
+    function unpause(event) {
+        if(game.paused){
+            var x1 = WIDTH_SCREEN/2 - 270/2, x2 = WIDTH_SCREEN/2 + 270/2,
+                y1 = HEIGHT_SCREEN/2 - 180/2, y2 = HEIGHT_SCREEN/2 + 180/2;
+               // menu.destroy();
+                choiseLabel.destroy();
+                game.paused = false;
+        }
+    }
 }
 //оновлення після зміни на Canvas
 function update() {
