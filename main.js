@@ -37,7 +37,7 @@ BootGameState.create = function() {
 
 var current=0; //змінна дл отриманн, поточного значення блоку
 var current_heigth_level;
-
+var music;
  //загрузка контента
 function preload() {
     game.load.image('background', 'img/background.jpg');
@@ -54,15 +54,26 @@ function preload() {
     game.load.image('run5', "img/Person/5.png");
     game.load.image('run6', "img/Person/6.png");
     //
+// PauseMenu
+    game.load.image('exit', "img/PauseMenu/exit.png");
+    //game.load.image('options', "img/PauseMenu/options.png");
+    game.load.image('restart', "img/PauseMenu/restart.png");
+    game.load.image('resume', "img/PauseMenu/resume.png");
+    game.load.image('back', "img/PauseMenu/back.png");
+    game.load.image('musicOn', "img/PauseMenu/musicOn.jpg");
+    game.load.image('musicOFF', "img/PauseMenu/musicOFF.jpg");
 
     game.state.add('Boot', BootGameState, false);
+
+    //music
+    game.load.audio('music',"Music/FloRida.mp3");
 }
+
 var platforms; // група об'єктів, на яких Персонаж буде пригати
 var player;
-<<<<<<< HEAD
+
 var pause_label;
-=======
->>>>>>> refs/remotes/kovaIenko/master
+
 //ініціалізація початкових параметрів(фон, карта, персонажі..)
 function create() {
 
@@ -72,6 +83,10 @@ function create() {
 
    game.add.sprite(0, 0, 'background');
    game.add.sprite(0,378,'ground');
+    music = game.add.audio('music');
+   music.play();
+    music.loop = true;
+
 
 
     // Створюємо групу для бордюрів, на які Персонаж буде пригати
@@ -89,14 +104,14 @@ function create() {
     ground.body.immovable = true;
  //Персонаж
 
-<<<<<<< HEAD
-    player=game.add.sprite(50, game.world.height - HEIGTH_GROUND-HEIGTH_PERSON-300, 'person');
 
-=======
-    player=game.add.sprite(300, game.world.height - HEIGTH_GROUND-HEIGTH_PERSON-300, 'person');
+   // player=game.add.sprite(50, game.world.height - HEIGTH_GROUND-HEIGTH_PERSON-300, 'person');
+
+
+   player=game.add.sprite(300, game.world.height - HEIGTH_GROUND-HEIGTH_PERSON-300, 'person');
    // var walk = player.animations.add('walk');
   //  player.animations.play('walk', 30, true);
->>>>>>> refs/remotes/kovaIenko/master
+
     game.physics.arcade.enable(player); //фізика для персонажа
 
 
@@ -108,7 +123,7 @@ function create() {
    player.body.collideWorldBounds = true;
 
 
-<<<<<<< HEAD
+
     cursors = game.input.keyboard.createCursorKeys();
 
     // Меню паузи
@@ -116,28 +131,60 @@ function create() {
     pause_label.inputEnabled = true;
     pause_label.events.onInputUp.add(function () {
         game.paused = true;
-       // menu = game.add.sprite(WIDTH_SCREEN/2,HEIGHT_SCREEN/2,'menu');
-       // menu.anchor.setTo(0.5,0.5);
-        choiseLabel = game.add.text(WIDTH_SCREEN/2, HEIGHT_SCREEN-150, 'Click outside menu to continue', { font: '30px Arial', fill: '#fff' });
-        choiseLabel.anchor.setTo(0.5, 0.5);
+       resume =  game.add.button(300, 100, 'resume', actionOnClick, this, 2, 1, 0);
+        restart =  game.add.button(300, 153, 'restart', actionOnClick, this, 2, 1, 0);
+        exit =  game.add.button(300, 206, 'exit', actionOnClick, this, 2, 1, 0);
+        volume = game.add.button(700, 350, 'musicOn', actionOnClick, this, 2, 1, 0);
     });
 
-
-    game.input.onDown.add(unpause,self);
+    function actionOnClick() {
+    // Unpause the game
+    game.paused = false;
+}
+    game.input.onDown.add(unpause, self);
     function unpause(event) {
-        if(game.paused){
-            var x1 = WIDTH_SCREEN/2 - 270/2, x2 = WIDTH_SCREEN/2 + 270/2,
-                y1 = HEIGHT_SCREEN/2 - 180/2, y2 = HEIGHT_SCREEN/2 + 180/2;
-               // menu.destroy();
-                choiseLabel.destroy();
+        if (game.paused) {
+            // Calculate the corners of the menu
+            var x1 = game.world.centerX - 95, x2 = game.world.centerX - 40,
+                y1 =400, y2 = 500;
+
+           // button.onInputOver.add(over, this);
+            // Check if the click was inside the menu
+            if (event.x > 300 && event.x < 500 && event.y > 100 && event.y < 150 ) {
+                resume.destroy();
+                restart.destroy();
+                exit.destroy();
+                volume.destroy();
                 game.paused = false;
+            }
+            if (event.x > 300 && event.x < 500 && event.y > 153 && event.y < 206 ) {
+                restartTheGame();
+            }
+
         }
     }
-=======
-
 
     line();
->>>>>>> refs/remotes/kovaIenko/master
+
+}
+
+function restartTheGame() {
+    player.destroy();
+    platforms.destroy();
+    resume.destroy();
+    restart.destroy();
+    exit.destroy();
+    volume.destroy();
+   // back.destroy();
+    music.destroy();
+    create();
+    game.paused = false;
+}
+
+
+
+function render() {
+    game.debug.soundInfo(music, 20, 32);
 }
 var start_;
 var end_;
