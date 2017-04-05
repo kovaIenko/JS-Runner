@@ -67,13 +67,17 @@ function preload() {
 
     //music
     game.load.audio('music',"Music/FloRida.mp3");
+
 }
 
 var platforms; // група об'єктів, на яких Персонаж буде пригати
 var player;
 
 var pause_label;
-
+var sounds;
+var current;
+var loopCount = 0;
+var soundOFF = false;
 //ініціалізація початкових параметрів(фон, карта, персонажі..)
 function create() {
 
@@ -84,9 +88,10 @@ function create() {
    game.add.sprite(0, 0, 'background');
    game.add.sprite(0,378,'ground');
     music = game.add.audio('music');
-   music.play();
-    music.loop = true;
 
+    sounds = [ music ];
+
+    game.sound.setDecodedCallback(sounds, start, this);
 
 
     // Створюємо групу для бордюрів, на які Персонаж буде пригати
@@ -134,7 +139,16 @@ function create() {
        resume =  game.add.button(300, 100, 'resume', actionOnClick, this, 2, 1, 0);
         restart =  game.add.button(300, 153, 'restart', actionOnClick, this, 2, 1, 0);
         exit =  game.add.button(300, 206, 'exit', actionOnClick, this, 2, 1, 0);
-        volume = game.add.button(700, 350, 'musicOn', actionOnClick, this, 2, 1, 0);
+        if(soundOFF == false) {
+            volumeOFF = game.add.button(700, 350, 'musicOFF', actionOnClick, this, 2, 1, 0);
+            // if(soundOFF == false)
+            volume = game.add.button(700, 350, 'musicOn', actionOnClick, this, 2, 1, 0);
+        }
+        if(soundOFF == true) {
+            volume = game.add.button(700, 350, 'musicOn', actionOnClick, this, 2, 1, 0);
+            volumeOFF = game.add.button(700, 350, 'musicOFF', actionOnClick, this, 2, 1, 0);
+        }
+
     });
 
     function actionOnClick() {
@@ -155,16 +169,57 @@ function create() {
                 restart.destroy();
                 exit.destroy();
                 volume.destroy();
+                volumeOFF.destroy();
                 game.paused = false;
             }
             if (event.x > 300 && event.x < 500 && event.y > 153 && event.y < 206 ) {
                 restartTheGame();
+            }
+            if (event.x > 700 && event.x < 788 && event.y > 350 && event.y < 438 && soundOFF == false ) {
+                music.volume = 0.0;
+                volume.destroy();
+                soundOFF = true;
+                //volume.destroy();
+                volumeOFF.add();
+            }
+
+            if (event.x > 700 && event.x < 788 && event.y > 350 && event.y < 438 && soundOFF == true ) {
+                music.volume = 1.0;
+                volumeOFF.destroy();
+                soundOFF = false;
+                volume.add();
             }
 
         }
     }
 
     line();
+
+}
+
+
+function start() {
+    sounds.shift();
+    music.loopFull(0.6);
+    music.onLoop.add(hasLooped, this);
+}
+
+function hasLooped(sound) {
+
+    loopCount++;
+
+    if (loopCount === 1)
+    {
+        sounds.shift();
+        music.loopFull();
+    }
+    else if (loopCount >= 2)
+    {
+        current.stop();
+        current = game.rnd.pick(sounds);
+        current.loopFull();
+    }
+
 
 }
 
@@ -175,6 +230,7 @@ function restartTheGame() {
     restart.destroy();
     exit.destroy();
     volume.destroy();
+    volumeOFF.destroy();
    // back.destroy();
     music.destroy();
     create();
