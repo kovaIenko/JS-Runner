@@ -35,6 +35,7 @@ BootGameState.create = function() {
     Game.state.start('Preloader', false, false);
 };
 
+
 var current=0; //змінна дл отриманн, поточного значення блоку
 var current_heigth_level;
 var music;
@@ -64,9 +65,10 @@ function preload() {
     game.load.image('musicOFF', "img/PauseMenu/musicOFF.jpg");
 
     game.state.add('Boot', BootGameState, false);
-
+   // game.state.add('menu', menuState, false);
     //music
     game.load.audio('music',"Music/FloRida.mp3");
+   // game.state.start('menu');
 
 }
 
@@ -234,6 +236,7 @@ function restartTheGame() {
    // back.destroy();
     music.destroy();
     create();
+    soundOFF = false;
     game.paused = false;
 }
 
