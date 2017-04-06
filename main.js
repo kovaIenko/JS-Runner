@@ -10,7 +10,7 @@ const WIDTH_SCREEN = 800;
 
 var game = new Phaser.Game(
     800,
-    500,
+    490,
     Phaser.AUTO,
     'game',
     {
@@ -19,6 +19,7 @@ var game = new Phaser.Game(
         update: update
     }
 );
+
 
 
 var BootGameState = new Phaser.State();
@@ -37,24 +38,17 @@ BootGameState.create = function() {
 
 
 var current=0; //змінна дл отриманн, поточного значення блоку
-var current_heigth_level;
+
 var music;
+
  //загрузка контента
 function preload() {
-    game.load.image('background', 'img/background.jpg');
-    game.load.image('ground', 'img/ground.png');
-   game.load.spritesheet("person","img/Person/1.png");
-    game.load.image('start', "img/start.png");
+    game.load.image('background', 'img/back.png');
+    game.load.image('start', "img/first.png");
     game.load.image('center', "img/center.png");
     game.load.image('end', "img/end.png");
-//
-    game.load.image('run1', "img/Person/1.png");
-    game.load.image('run2', "img/Person/2.png");
-    game.load.image('run3', "img/Person/3.png");
-    game.load.image('run4', "img/Person/4.png");
-    game.load.image('run5', "img/Person/5.png");
-    game.load.image('run6', "img/Person/6.png");
-    //
+    game.load.atlasJSONHash('person', 'player.png', 'player.json');
+
 // PauseMenu
     game.load.image('exit', "img/PauseMenu/exit.png");
     //game.load.image('options', "img/PauseMenu/options.png");
@@ -81,14 +75,11 @@ var current;
 var loopCount = 0;
 var soundOFF = false;
 //ініціалізація початкових параметрів(фон, карта, персонажі..)
-function create() {
-
-
+   function create() {
     //Фізика
     game.physics.startSystem(Phaser.Physics.ARCADE);
+    game.add.sprite(0, 0, 'background');
 
-   game.add.sprite(0, 0, 'background');
-   game.add.sprite(0,378,'ground');
     music = game.add.audio('music');
 
     sounds = [ music ];
@@ -98,36 +89,28 @@ function create() {
 
     // Створюємо групу для бордюрів, на які Персонаж буде пригати
     platforms = game.add.group();
-
+    platforms.physicsBodyType = Phaser.Physics.ARCADE;
     platforms.enableBody = true;  //фізика для цієї групи
-
-    //створюємо підлогу, на яку теж діє фізика
-    var ground = platforms.create(0, game.world.height - HEIGTH_GROUND, 'ground');
-    //  Подгоняем размер пола по размерам игры (оригинальный спрайт размером 800x122)
- //   ground.scale.setTo(2, 2);
-
-    // підлога непорушна
-    //background.body.immovable =true;
-    ground.body.immovable = true;
- //Персонаж
-
-
-   // player=game.add.sprite(50, game.world.height - HEIGTH_GROUND-HEIGTH_PERSON-300, 'person');
+    game.physics.enable(platforms, Phaser.Physics.ARCADE);
 
 
    player=game.add.sprite(300, game.world.height - HEIGTH_GROUND-HEIGTH_PERSON-300, 'person');
-   // var walk = player.animations.add('walk');
-  //  player.animations.play('walk', 30, true);
-
     game.physics.arcade.enable(player); //фізика для персонажа
 
 
+    // animation
+    player.animations.add('run');
+    player.animations.play('run', 40, true);
+    player.scale.setTo(0.429);
+
+    //фізика для персонажа
+    game.physics.enable(player, Phaser.Physics.ARCADE);
     //  Налаштування персонажа
-    player.body.bounce.y = 0.3;
+    player.body.bounce.set(0.1);
    // player.body.immovable = true;
     player.body.gravity.y = 300; //швидше буде падати
-  //
-   player.body.collideWorldBounds = true;
+
+
 
 
 
@@ -245,15 +228,15 @@ function restartTheGame() {
 function render() {
     game.debug.soundInfo(music, 20, 32);
 }
+
 var start_;
 var end_;
 var center_;
+
 //оновлення після зміни на Canvas
 function update() {
     game.physics.arcade.collide(player, platforms);
-
-    cursors = game.input.keyboard.createCursorKeys();
-
+    toManage();
 
 
   //
@@ -271,30 +254,54 @@ function line() {
     var current_heigth_level =0;
     for(var r=0;r<COUNT;r++) {
 
-        next =getRandomInt(0,current_heigth_level+2);
+        next =getRandomInt(0,current_heigth_level+1);
         if (start == 0)
-            start_ = platforms.create((start + 43), game.world.height - HEIGTH_GROUND - HEIGTH_BLOCK - HEIGTH_PERSON - next * HEIGTH_BLOCK, 'start');
+            start_ = platforms.create((start + 38), game.world.height - HEIGTH_GROUND - HEIGTH_BLOCK - HEIGTH_PERSON - next * HEIGTH_BLOCK, 'start');
         else
-            start_ = platforms.create(43 + (start += 43), game.world.height - HEIGTH_GROUND - HEIGTH_BLOCK - HEIGTH_PERSON - next * HEIGTH_BLOCK, 'start');
-        start += 43;
+            start_ = platforms.create(38 + (start += 38), game.world.height - HEIGTH_GROUND - HEIGTH_BLOCK - HEIGTH_PERSON - next * HEIGTH_BLOCK, 'start');
+        start += 38;
       //  start_.body.immovable = true;
 
         var i = 0;
-        for (i = 0; i < getRandomInt(0, 2); i++) {
-            center_ = platforms.create((start += 43), game.world.height - HEIGTH_GROUND - HEIGTH_BLOCK - HEIGTH_PERSON - next * HEIGTH_BLOCK, 'center');
+        for (i = 0; i < getRandomInt(0, 5); i++) {
+            center_ = platforms.create((start += 38), game.world.height - HEIGTH_GROUND - HEIGTH_BLOCK - HEIGTH_PERSON - next * HEIGTH_BLOCK, 'center');
             center_.body.immovable = true;
-            center_.body.velocity.x = - 250;
+            center_.body.velocity.x = - 220;
+            center_.scale.setTo(0.5)
         }
 
-        end_ = platforms.create(start += 43, game.world.height - HEIGTH_GROUND - HEIGTH_BLOCK - HEIGTH_PERSON - next * HEIGTH_BLOCK, 'end');
-        start += 100;
-
-current_heigth_level =3;
+        end_ = platforms.create(start += 38, game.world.height - HEIGTH_GROUND - HEIGTH_BLOCK - HEIGTH_PERSON - next * HEIGTH_BLOCK, 'end');
+        start += 30;
+           current_heigth_level =3;
        start_.body.immovable = true;
+        end_.scale.setTo(0.5);
         end_.body.immovable = true;
-        start_.body.velocity.x = - 250;
-        end_.body.velocity.x = - 250;
+        start_.scale.setTo(0.5)
+        start_.body.velocity.x = - 220;
+        end_.body.velocity.x = - 220;
 
 
     }
 }
+
+function toManage() {
+    cursors = game.input.keyboard.createCursorKeys();
+
+
+    if (cursors.up.isDown && player.body.touching.down)
+    {
+        player.body.velocity.y = -220;
+    }
+
+    if (cursors.right.isDown && player.body.touching.down)
+    {
+        player.body.velocity.x +=10;
+
+    }
+    if (cursors.left.isDown && player.body.touching.down)
+    {
+        player.body.velocity.x -=10;
+    }
+}
+
+
