@@ -5,7 +5,8 @@ const HEIGTH_PERSON=70;
 const HEIGTH_GROUND=122;
 const  COUNT=50;
 const HEIGTH_BLOCK=25;
-
+const HEIGHT_SCREEN = 500;
+const WIDTH_SCREEN = 800;
 
 var game = new Phaser.Game(
     800,
@@ -20,6 +21,25 @@ var game = new Phaser.Game(
 );
 
 
+
+var BootGameState = new Phaser.State();
+
+BootGameState.create = function() {
+    LoadingText = Game.add.text(Game.world.width / 2, Game.world.height / 2, LOADING_TEXT, {
+        font: '32px "Press Start 2P"',
+        fill: '#FFFFFF',
+        stroke: '#000000',
+        strokeThickness: 3,
+        align: 'center'
+    });
+    LoadingText.anchor.setTo(0.5, 0.5);
+    Game.state.start('Preloader', false, false);
+};
+
+var current=0; //змінна дл отриманн, поточного значення блоку
+
+var music;
+
  //загрузка контента
 function preload() {
     game.load.image('background', 'img/back.png');
@@ -27,15 +47,42 @@ function preload() {
     game.load.image('center', "img/center.png");
     game.load.image('end', "img/end.png");
     game.load.atlasJSONHash('person', 'player.png', 'player.json');
+
+// PauseMenu
+    game.load.image('exit', "img/PauseMenu/exit.png");
+    //game.load.image('options', "img/PauseMenu/options.png");
+    game.load.image('restart', "img/PauseMenu/restart.png");
+    game.load.image('resume', "img/PauseMenu/resume.png");
+    game.load.image('back', "img/PauseMenu/back.png");
+    game.load.image('musicOn', "img/PauseMenu/musicOn.jpg");
+    game.load.image('musicOFF', "img/PauseMenu/musicOFF.jpg");
+
+    game.state.add('Boot', BootGameState, false);
+
+    //music
+    game.load.audio('music',"Music/FloRida.mp3");
+
 }
+
 var platforms; // група об'єктів, на яких Персонаж буде пригати
 var player;
+
+var pause_label;
+var sounds;
+var current;
+var loopCount = 0;
+var soundOFF = false;
 //ініціалізація початкових параметрів(фон, карта, персонажі..)
    function create() {
     //Фізика
     game.physics.startSystem(Phaser.Physics.ARCADE);
     game.add.sprite(0, 0, 'background');
 
+    music = game.add.audio('music');
+
+    sounds = [ music ];
+
+    game.sound.setDecodedCallback(sounds, start, this);
 
 
     // Створюємо групу для бордюрів, на які Персонаж буде пригати
@@ -44,13 +91,14 @@ var player;
     platforms.enableBody = true;  //фізика для цієї групи
     game.physics.enable(platforms, Phaser.Physics.ARCADE);
 
-     //Персонаж
-    player=game.add.sprite(300, game.world.height - HEIGTH_GROUND-HEIGTH_PERSON-300, 'person');
+
+   player=game.add.sprite(300, game.world.height - HEIGTH_GROUND-HEIGTH_PERSON-300, 'person');
+    game.physics.arcade.enable(player); //фізика для персонажа
 
 
     // animation
     player.animations.add('run');
-    player.animations.play('run', 70, true);
+    player.animations.play('run', 40, true);
     player.scale.setTo(0.429);
 
     //фізика для персонажа
@@ -60,9 +108,124 @@ var player;
    // player.body.immovable = true;
     player.body.gravity.y = 300; //швидше буде падати
 
+
+
+
+
+    cursors = game.input.keyboard.createCursorKeys();
+
+    // Меню паузи
+    pause_label = game.add.text(WIDTH_SCREEN-100,20,'Pause',{ font: '24px Arial', fill: '#fff' });
+    pause_label.inputEnabled = true;
+    pause_label.events.onInputUp.add(function () {
+        game.paused = true;
+       resume =  game.add.button(300, 100, 'resume', actionOnClick, this, 2, 1, 0);
+        restart =  game.add.button(300, 153, 'restart', actionOnClick, this, 2, 1, 0);
+        exit =  game.add.button(300, 206, 'exit', actionOnClick, this, 2, 1, 0);
+        if(soundOFF == false) {
+            volumeOFF = game.add.button(700, 350, 'musicOFF', actionOnClick, this, 2, 1, 0);
+            // if(soundOFF == false)
+            volume = game.add.button(700, 350, 'musicOn', actionOnClick, this, 2, 1, 0);
+        }
+        if(soundOFF == true) {
+            volume = game.add.button(700, 350, 'musicOn', actionOnClick, this, 2, 1, 0);
+            volumeOFF = game.add.button(700, 350, 'musicOFF', actionOnClick, this, 2, 1, 0);
+        }
+
+    });
+
+    function actionOnClick() {
+    // Unpause the game
+    game.paused = false;
+}
+    game.input.onDown.add(unpause, self);
+    function unpause(event) {
+        if (game.paused) {
+            // Calculate the corners of the menu
+            var x1 = game.world.centerX - 95, x2 = game.world.centerX - 40,
+                y1 =400, y2 = 500;
+
+           // button.onInputOver.add(over, this);
+            // Check if the click was inside the menu
+            if (event.x > 300 && event.x < 500 && event.y > 100 && event.y < 150 ) {
+                resume.destroy();
+                restart.destroy();
+                exit.destroy();
+                volume.destroy();
+                volumeOFF.destroy();
+                game.paused = false;
+            }
+            if (event.x > 300 && event.x < 500 && event.y > 153 && event.y < 206 ) {
+                restartTheGame();
+            }
+            if (event.x > 700 && event.x < 788 && event.y > 350 && event.y < 438 && soundOFF == false ) {
+                music.volume = 0.0;
+                volume.destroy();
+                soundOFF = true;
+                //volume.destroy();
+                volumeOFF.add();
+            }
+
+            if (event.x > 700 && event.x < 788 && event.y > 350 && event.y < 438 && soundOFF == true ) {
+                music.volume = 1.0;
+                volumeOFF.destroy();
+                soundOFF = false;
+                volume.add();
+            }
+
+        }
+    }
+
     line();
 
 }
+
+
+function start() {
+    sounds.shift();
+    music.loopFull(0.6);
+    music.onLoop.add(hasLooped, this);
+}
+
+function hasLooped(sound) {
+
+    loopCount++;
+
+    if (loopCount === 1)
+    {
+        sounds.shift();
+        music.loopFull();
+    }
+    else if (loopCount >= 2)
+    {
+        current.stop();
+        current = game.rnd.pick(sounds);
+        current.loopFull();
+    }
+
+
+}
+
+function restartTheGame() {
+    player.destroy();
+    platforms.destroy();
+    resume.destroy();
+    restart.destroy();
+    exit.destroy();
+    volume.destroy();
+    volumeOFF.destroy();
+   // back.destroy();
+    music.destroy();
+    create();
+    game.paused = false;
+}
+
+
+
+function render() {
+    game.debug.soundInfo(music, 20, 32);
+}
+
 var start_;
 var end_;
 var center_;
