@@ -12,6 +12,6 @@ var menuState =
 
     },
     start: function () {
-        game.state.start('BootGameState');
+        game.state.start('play');
     }
 };
