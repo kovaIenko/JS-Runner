@@ -8,14 +8,13 @@ var pause_label;
 var sounds;
 var current;
 var loopCount = 0;
-var soundOFF = false;
 var start_;
 var end_;
 var center_;
 
 var current=0; //змінна дл отриманн, поточного значення блоку
 
-var music;
+
 
 const HEIGTH_PERSON=70;
 const HEIGTH_GROUND=122;
@@ -69,18 +68,11 @@ var playState = {
         pause_label.inputEnabled = true;
         pause_label.events.onInputUp.add(function () {
             game.paused = true;
-            resume = game.add.button(300, 100, 'resume', actionOnClick, this, 2, 1, 0);
-            restart = game.add.button(300, 153, 'restart', actionOnClick, this, 2, 1, 0);
-            exit = game.add.button(300, 206, 'exit', actionOnClick, this, 2, 1, 0);
-            if (soundOFF == false) {
-                volumeOFF = game.add.button(700, 350, 'musicOFF', actionOnClick, this, 2, 1, 0);
-                // if(soundOFF == false)
-                volume = game.add.button(700, 350, 'musicOn', actionOnClick, this, 2, 1, 0);
-            }
-            if (soundOFF == true) {
-                volume = game.add.button(700, 350, 'musicOn', actionOnClick, this, 2, 1, 0);
-                volumeOFF = game.add.button(700, 350, 'musicOFF', actionOnClick, this, 2, 1, 0);
-            }
+            resume = game.add.button(100, 50, 'resume', actionOnClick, this, 2, 1, 0);
+            restart = game.add.button(-80, 50, 'restart', actionOnClick, this, 2, 1, 0);
+            exit = game.add.button(160, 200, 'exit', actionOnClick, this, 2, 1, 0);
+            exit.onInputDown.add(backToTheMenu,this);
+
 
         });
 
@@ -98,31 +90,36 @@ var playState = {
 
                 // button.onInputOver.add(over, this);
                 // Check if the click was inside the menu
-                if (event.x > 300 && event.x < 500 && event.y > 100 && event.y < 150) {
+                if (event.x > 100 && event.x < 292 && event.y > 50 && event.y < 125) {
                     resume.destroy();
                     restart.destroy();
                     exit.destroy();
-                    volume.destroy();
-                    volumeOFF.destroy();
                     game.paused = false;
                 }
-                if (event.x > 300 && event.x < 500 && event.y > 153 && event.y < 206) {
+                if (event.x > 120 && event.x < 312 && event.y > 125 && event.y < 200) {
                     restartTheGame();
                 }
-                if (event.x > 700 && event.x < 788 && event.y > 350 && event.y < 438 && soundOFF == false) {
-                    music.volume = 0.0;
-                    volume.destroy();
-                    soundOFF = true;
-                    //volume.destroy();
-                    volumeOFF.add();
+                if (event.x > 150 && event.x < 342 && event.y > 200 && event.y < 275) {
+                    console.log("ldsjf");
+                    music.destroy();
+                    game.paused = false;
+                    game.state.start("load");
                 }
+                // if (event.x > 700 && event.x < 788 && event.y > 350 && event.y < 438 && soundOFF == false) {
+                //     music.volume = 0.0;
+                //     volume.destroy();
+                //     soundOFF = true;
+                //     //volume.destroy();
+                //     volumeOFF = game.add.button(700, 350, 'musicOFF', actionOnClick, this, 2, 1, 0);
+                // }
+                //
+                // if (event.x > 700 && event.x < 788 && event.y > 350 && event.y < 438 && soundOFF == true) {
+                //     music.volume = 1.0;
+                //     volumeOFF.destroy();
+                //     soundOFF = false;
+                //     volume = game.add.button(700, 350, 'musicOn', actionOnClick, this, 2, 1, 0);
+                // }
 
-                if (event.x > 700 && event.x < 788 && event.y > 350 && event.y < 438 && soundOFF == true) {
-                    music.volume = 1.0;
-                    volumeOFF.destroy();
-                    soundOFF = false;
-                    volume.add();
-                }
 
             }
         }
@@ -133,7 +130,7 @@ var playState = {
 
 
 
-    
+
     update: function () {
         game.physics.arcade.collide(player, platforms);
         toManage();
@@ -170,8 +167,6 @@ function restartTheGame() {
     resume.destroy();
     restart.destroy();
     exit.destroy();
-    volume.destroy();
-    volumeOFF.destroy();
     // back.destroy();
     music.destroy();
     //create();
@@ -180,6 +175,9 @@ function restartTheGame() {
     game.state.start('play');
 }
 
+function backToTheMenu() {
+    game.state.start('menu');
+}
 
 
 function render() {
@@ -247,3 +245,4 @@ function toManage() {
         player.body.velocity.x -=10;
     }
 }
+
