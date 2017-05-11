@@ -192,14 +192,25 @@ function render() {
 function getRandomInt(min, max) {
     return Math.floor(Math.random() * (max - min + 1)) + min;
 }
-
-
+  var fireButton;
+var jumpButton;
 function toManage() {
-    if(player.y>500){
+    fireButton = game.input.keyboard.addKey(Phaser.Keyboard.SPACEBAR);
+    cursors = game.input.keyboard.createCursorKeys();
+
+    if(fireButton.onUp.isDown) {
+        fireBullet();
+    }
+
+    if (cursors.up.isDown&&player.body.touching.down)
+    {
+        player.body.velocity.y-=500;
+        player.body.velocity.x+=5;
+       // player.body.setZeroVelocity();
+    }
+   if(player.y>500){
         game.state.start("LostMenu");
     }
     Score.setText(score);
-
-
 
 }
