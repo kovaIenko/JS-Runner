@@ -3,7 +3,6 @@
  */
 var level;
 var music;
-
 var menuState =
 {
     preload: function () {
@@ -23,8 +22,12 @@ var menuState =
         game.load.image('musicOFF', "img/PauseMenu/musicOFF.jpg");
         game.load.image('menuStart', "img/PauseMenu/menuStart.jpg");
         game.load.image('menuSet', "img/PauseMenu/menuSet.jpg");
+
+        game.load.image('bullet','img/bullet.png')
+
         //music
-        game.load.audio('music',"Music/tobi.mp3");
+        game.load.audio('music',"Music/FloRida.mp3");
+        //game.state.start('menu');
     },
     create : function () {
         music = game.add.audio('music');
@@ -61,20 +64,18 @@ function actionOnClick() {}
 function plussing() {
     if(LevelOfSound < 100) {
         LevelOfSound =LevelOfSound + 10;
+        // var level = game.add.text(530, 160, LevelOfSound + "%", {font: '50px Monotype Corsiva', fill: "#62C908"});
         level.setText(LevelOfSound + "%");
         music.volume+=0.1;
         console.log(music.volume);
     }
 }
 function minussing() {
-    if(LevelOfSound >0 ) {
+    if(LevelOfSound > 0) {
         LevelOfSound =LevelOfSound- 10;
         //var level = game.add.text(530, 160, LevelOfSound + "%", {font: '50px Monotype Corsiva', fill: "#62C908"});
         level.setText(LevelOfSound + "%");
         music.volume-=0.1;
         console.log(music.volume);
     }
-}
-function render() {
-    game.debug.soundInfo(music, 20, 32);
 }
