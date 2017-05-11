@@ -21,12 +21,10 @@ var menuState =
         game.load.image('back', "img/back.png");
         game.load.image('menuStart', "img/PauseMenu/menuStart.jpg");
         game.load.image('menuSet', "img/PauseMenu/menuSet.jpg");
-<<<<<<< HEAD:js/menu.js
-        game.load.image('bullet','img/bullet.png')
+        game.load.image('bullet','img/bullet.png');
         // game.state.add('Boot', BootGameState, false);
         // game.state.add('menu', menuState, false);
-=======
->>>>>>> origin/master:menu.js
+
         //music
         game.load.audio('music',"Music/tobi.mp3");
     },
