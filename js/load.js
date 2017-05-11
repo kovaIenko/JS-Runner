@@ -5,9 +5,9 @@ var loadState =
 {
     preload: function () {
 //         game.load.image('background', 'img/back.png');
-//         game.load.image('start', "img/first.png");
-//         game.load.image('center', "img/center.png");
-//         game.load.image('end', "img/end.png");
+//        game.load.image('tile3', "img/tiles3");
+      //  game.load.image('tile4', "img/tiles4");
+     //   game.load.image('tile5', "img/tiles5");
 //         game.load.atlasJSONHash('person', 'player.png', 'player.json');
 //
 // // PauseMenu
