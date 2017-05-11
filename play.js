@@ -23,16 +23,22 @@ var current=0; //змінна дл отриманн, поточного знач
 const HEIGTH_PERSON=70;
 const HEIGTH_GROUND=122;
 const  COUNT=50;
-const HEIGTH_BLOCK=25;
+const HEIGTH_BLOCK=15;
+const WIDTH_BLOCK=40;
 const HEIGHT_SCREEN = 500;
 const WIDTH_SCREEN = 800;
-
+   var back;
 
 var playState = {
     create: function () {
 //Фізика
         //game.physics.startSystem(Phaser.Physics.ARCADE);
-        game.add.sprite(0, 0, 'background');
+        back=game.add.sprite(0, 0, 'background');
+        back.enableBody = true;
+        game.physics.arcade.enable(back);
+        back.body.gravity.x=30;
+
+        game.world.setBounds(0,0, 50000000000000000, 490);
 
         music = game.add.audio('music');
 
@@ -51,19 +57,19 @@ var playState = {
         player = game.add.sprite(300, game.world.height - HEIGTH_GROUND - HEIGTH_PERSON - 300, 'person');
         game.physics.arcade.enable(player); //фізика для персонажа
 
+        player.enableBody = true; //фізика для цієї групи
+        player.body.gravity.y = 1500;
+        player.body.gravity.x =18;
+
+          //player.body.gravity.x+=0.3;
 
         // animation
         player.animations.add('run');
-        player.animations.play('run', 40, true);
-        player.scale.setTo(0.429);
+        player.animations.play('run', 120, true);
+        player.scale.setTo(0.3);
 
-        //фізика для персонажа
-        game.physics.enable(player, Phaser.Physics.ARCADE);
-        //  Налаштування персонажа
-        player.body.bounce.set(0.1);
-        // player.body.immovable = true;
-        player.body.gravity.y = 300; //швидше буде падати
-        //changing music volume due to settings
+        game.camera.follow(player, Phaser.Camera.FOLLOW_LOCKON, 0.1);
+        //game.camera.velocity= 18;
         music.volume= LevelOfSound/100;
 
         cursors = game.input.keyboard.createCursorKeys();
@@ -134,8 +140,11 @@ var playState = {
     update: function () {
         game.physics.arcade.collide(player, platforms);
         toManage();
+        insertBlock();
+        count++;
     }
 }
+var count=0;
 function start() {
     sounds.shift();
     music.loopFull(0.6);
@@ -213,4 +222,38 @@ function toManage() {
     }
     Score.setText(score);
 
+}
+  var abscis=10;
+var createdBlocks=[];
+function generateBlock(space) {
+    if(space) {
+        block = platforms.create(abscis, 25*HEIGTH_BLOCK, 'tile');
+//block.body.velocity.x = -220;
+        block.scale.setTo(0.5);
+        block.body.immovable = true;
+        createdBlocks.push(block);
+
+    }
+    checkingThereIsOnScrean();
+    abscis+=3*WIDTH_BLOCK;
+}
+
+
+
+
+
+function checkingThereIsOnScrean() {
+    if(player.body.x-createdBlocks[0].body.x>1000)
+        createdBlocks.shift().destroy();
+}
+
+function insertBlock() {
+    if(count%5==0&&count%60==0&&count!=0){
+        generateBlock(false);
+// return ;
+        count++;
+    }
+
+    if(count%5==0)
+        generateBlock(true);
 }
