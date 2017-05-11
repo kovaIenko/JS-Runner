@@ -3,6 +3,7 @@
  */
 var level;
 var music;
+
 var menuState =
 {
     preload: function () {
@@ -22,11 +23,8 @@ var menuState =
         game.load.image('musicOFF', "img/PauseMenu/musicOFF.jpg");
         game.load.image('menuStart', "img/PauseMenu/menuStart.jpg");
         game.load.image('menuSet', "img/PauseMenu/menuSet.jpg");
-        // game.state.add('Boot', BootGameState, false);
-        // game.state.add('menu', menuState, false);
         //music
-        game.load.audio('music',"Music/FloRida.mp3");
-        //game.state.start('menu');
+        game.load.audio('music',"Music/tobi.mp3");
     },
     create : function () {
         music = game.add.audio('music');
@@ -38,6 +36,7 @@ var menuState =
         var wKey = game.input.keyboard.addKey(Phaser.Keyboard.W);
         nameLabel.events.onInputDown.add(this.start,this);
         startLabel.events.onInputDown.add(this.options,this);
+        music.volume = LevelOfSound/100;
         
     },
     start: function () {
@@ -62,18 +61,20 @@ function actionOnClick() {}
 function plussing() {
     if(LevelOfSound < 100) {
         LevelOfSound =LevelOfSound + 10;
-        // var level = game.add.text(530, 160, LevelOfSound + "%", {font: '50px Monotype Corsiva', fill: "#62C908"});
         level.setText(LevelOfSound + "%");
         music.volume+=0.1;
         console.log(music.volume);
     }
 }
 function minussing() {
-    if(LevelOfSound > 0) {
+    if(LevelOfSound >0 ) {
         LevelOfSound =LevelOfSound- 10;
         //var level = game.add.text(530, 160, LevelOfSound + "%", {font: '50px Monotype Corsiva', fill: "#62C908"});
         level.setText(LevelOfSound + "%");
         music.volume-=0.1;
         console.log(music.volume);
     }
+}
+function render() {
+    game.debug.soundInfo(music, 20, 32);
 }

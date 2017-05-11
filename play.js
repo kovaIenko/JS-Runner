@@ -3,7 +3,7 @@
  */
 var platforms; // група об'єктів, на яких Персонаж буде пригати
 var player;
-
+var score =0;
 var pause_label;
 var sounds;
 var current;
@@ -11,6 +11,10 @@ var loopCount = 0;
 var start_;
 var end_;
 var center_;
+var Score;
+var timer;
+var total = 0;
+var Label;
 
 var current=0; //змінна дл отриманн, поточного значення блоку
 
@@ -59,12 +63,31 @@ var playState = {
         player.body.bounce.set(0.1);
         // player.body.immovable = true;
         player.body.gravity.y = 300; //швидше буде падати
-
+        //changing music volume due to settings
+        music.volume= LevelOfSound/100;
 
         cursors = game.input.keyboard.createCursorKeys();
+        //timer = game.time.create(false);
+        Label =  game.add.text(450,20,"SCORE: ",{font:'30px Monotype Corsiva',fill:"#62C908"});
+        Score = game.add.text(550,10,score,{font:'50px Monotype Corsiva',fill:"#62C908"});
+        //  Create our Timer
+        timer = game.time.create(false);
+
+        //  Set a TimerEvent to occur after 2 seconds
+        timer.loop(1000, updateCounter, this);
+
+        //  Start the timer running - this is important!
+        //  It won't start automatically, allowing you to hook it to button events and the like.
+        timer.start();
+        //updating timer
+        function updateCounter() {
+
+            total++;
+            score =score + 1;
+        }
 
         // Меню паузи
-        pause_label = game.add.text(WIDTH_SCREEN - 100, 20, 'Pause', {font: '24px Arial', fill: '#fff'});
+        pause_label = game.add.text(WIDTH_SCREEN - 150, 10, 'Pause', {font:'40px Monotype Corsiva',fill:"#62C908"});
         pause_label.inputEnabled = true;
         pause_label.events.onInputUp.add(function () {
             game.paused = true;
@@ -87,8 +110,6 @@ var playState = {
                 // Calculate the corners of the menu
                 var x1 = game.world.centerX - 95, x2 = game.world.centerX - 40,
                     y1 = 400, y2 = 500;
-
-                // button.onInputOver.add(over, this);
                 // Check if the click was inside the menu
                 if (event.x > 100 && event.x < 292 && event.y > 50 && event.y < 125) {
                     resume.destroy();
@@ -102,34 +123,15 @@ var playState = {
                 if (event.x > 150 && event.x < 342 && event.y > 200 && event.y < 275) {
                     console.log("ldsjf");
                     music.destroy();
+                    score = 0;
                     game.paused = false;
                     game.state.start("load");
                 }
-                // if (event.x > 700 && event.x < 788 && event.y > 350 && event.y < 438 && soundOFF == false) {
-                //     music.volume = 0.0;
-                //     volume.destroy();
-                //     soundOFF = true;
-                //     //volume.destroy();
-                //     volumeOFF = game.add.button(700, 350, 'musicOFF', actionOnClick, this, 2, 1, 0);
-                // }
-                //
-                // if (event.x > 700 && event.x < 788 && event.y > 350 && event.y < 438 && soundOFF == true) {
-                //     music.volume = 1.0;
-                //     volumeOFF.destroy();
-                //     soundOFF = false;
-                //     volume = game.add.button(700, 350, 'musicOn', actionOnClick, this, 2, 1, 0);
-                // }
-
-
             }
         }
 
         line();
     },
-
-
-
-
 
     update: function () {
         game.physics.arcade.collide(player, platforms);
@@ -138,7 +140,7 @@ var playState = {
 }
 function start() {
     sounds.shift();
-    music.loopFull(0.6);
+   music.loopFull(0.6);
     music.onLoop.add(hasLooped, this);
 }
 
@@ -170,17 +172,22 @@ function restartTheGame() {
     // back.destroy();
     music.destroy();
     //create();
+    score =0;
     soundOFF = false;
     game.paused = false;
     game.state.start('play');
 }
 
 function backToTheMenu() {
+    score=0;
+    music.destroy();
     game.state.start('menu');
 }
 
 
 function render() {
+    game.debug.soundInfo(music, 20, 32);
+    Score.setText(score);
     game.debug.soundInfo(music, 20, 32);
 }
 
@@ -228,8 +235,6 @@ function line() {
 
 function toManage() {
     cursors = game.input.keyboard.createCursorKeys();
-
-
     if (cursors.up.isDown && player.body.touching.down)
     {
         player.body.velocity.y = -220;
@@ -244,5 +249,12 @@ function toManage() {
     {
         player.body.velocity.x -=10;
     }
+    if(player.y>500){
+        game.state.start("LostMenu");
+    }
+    Score.setText(score);
+
+
+
 }
 
