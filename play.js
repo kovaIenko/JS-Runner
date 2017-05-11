@@ -288,39 +288,14 @@ function toManage() {
     if(fireButton.onUp.isDown) {
         fireBullet();
     }
-   // player.body.setZeroVelocity();
 
-  /*  if (cursors.left.isDown)
-    {
-        player.body.moveLeft(200);
-    }
-    else if (cursors.right.isDown)
-    {
-        player.body.moveRight(200);
-    }
-*/
     if (cursors.up.isDown&&player.body.touching.down)
     {
         player.body.velocity.y-=500;
         player.body.velocity.x+=5;
        // player.body.setZeroVelocity();
     }
-  /*  else if (cursors.down.isDown)
-    {
-        player.body.moveDown(200);
-    }
 
-    if (cursors.right.isDown && player.body.touching.down)
-    {
-
-        player.body.velocity.x =+10;
-
-    }
-    if (cursors.left.isDown && player.body.touching.down)
-    {
-
-        player.body.velocity.x =+10;
-    }*/
 }
 
 function rigthRandom(rgen)
