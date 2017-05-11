@@ -15,9 +15,11 @@ var Score;
 var timer;
 var total = 0;
 var Label;
-
+var tileSprite;
 var current=0; //змінна дл отриманн, поточного значення блоку
-
+var resume;
+var restart;
+var exit;
 
 
 const HEIGTH_PERSON=70;
@@ -32,11 +34,11 @@ const WIDTH_SCREEN = 800;
 var playState = {
     create: function () {
 //Фізика
-        //game.physics.startSystem(Phaser.Physics.ARCADE);
-        back=game.add.sprite(0, 0, 'background');
-        back.enableBody = true;
-        game.physics.arcade.enable(back);
-        back.body.gravity.x=30;
+        game.physics.startSystem(Phaser.Physics.ARCADE);
+       //  back=game.add.sprite(0, 0, 'background');
+       // back.enableBody = true;
+       // game.physics.arcade.enable(back);
+       //  back.body.gravity.x=18;
 
         game.world.setBounds(0,0, 50000000000000000, 490);
 
@@ -46,7 +48,9 @@ var playState = {
 
         game.sound.setDecodedCallback(sounds, start, this);
 
-
+        this.bg= this.game.add.tileSprite(0, 0, 50000000000000000, 490, 'background');
+        //tileSprite of the background
+        // Create a tilesprite (x, y, width, height, key)
         // Створюємо групу для бордюрів, на які Персонаж буде пригати
         platforms = game.add.group();
         platforms.physicsBodyType = Phaser.Physics.ARCADE;
@@ -69,13 +73,15 @@ var playState = {
         player.scale.setTo(0.3);
 
         game.camera.follow(player, Phaser.Camera.FOLLOW_LOCKON, 0.1);
-        //game.camera.velocity= 18;
+        game.camera.velocity= 18;
         music.volume= LevelOfSound/100;
 
         cursors = game.input.keyboard.createCursorKeys();
         //timer = game.time.create(false);
         Label =  game.add.text(450,20,"SCORE: ",{font:'30px Monotype Corsiva',fill:"#62C908"});
+        Label.fixedToCamera = true;
         Score = game.add.text(550,10,score,{font:'50px Monotype Corsiva',fill:"#62C908"});
+        Score.fixedToCamera = true;
         //  Create our Timer
         timer = game.time.create(false);
 
@@ -94,15 +100,17 @@ var playState = {
 
         // Меню паузи
         pause_label = game.add.text(WIDTH_SCREEN - 150, 10, 'Pause', {font:'40px Monotype Corsiva',fill:"#62C908"});
+        pause_label.fixedToCamera = true;
         pause_label.inputEnabled = true;
         pause_label.events.onInputUp.add(function () {
             game.paused = true;
-            resume = game.add.button(100, 50, 'resume', actionOnClick, this, 2, 1, 0);
-            restart = game.add.button(-80, 50, 'restart', actionOnClick, this, 2, 1, 0);
-            exit = game.add.button(160, 200, 'exit', actionOnClick, this, 2, 1, 0);
+            resume = game.add.button(game.camera.x + 100, 50, 'resume', actionOnClick, this, 2, 1, 0);
+            resume.fixedToCamera = true;
+            restart = game.add.button(game.camera.x-80, 50, 'restart', actionOnClick, this, 2, 1, 0);
+            restart.fixedToCamera = true;
+            exit = game.add.button(game.camera.x+160, 200, 'exit', actionOnClick, this, 2, 1, 0);
+            exit.fixedToCamera = true;
             exit.onInputDown.add(backToTheMenu,this);
-
-
         });
 
         function actionOnClick() {
@@ -113,7 +121,7 @@ var playState = {
         game.input.onDown.add(unpause, self);
         function unpause(event) {
             if (game.paused) {
-                // Calculate the corners of the menu
+                // // Calculate the corners of the menu
                 var x1 = game.world.centerX - 95, x2 = game.world.centerX - 40,
                     y1 = 400, y2 = 500;
                 // Check if the click was inside the menu
@@ -130,9 +138,11 @@ var playState = {
                     console.log("ldsjf");
                     music.destroy();
                     score = 0;
+                    createdBlocks=[];
                     game.paused = false;
                     game.state.start("load");
                 }
+               exit.onInputDown.add(backToTheMenu,this);
             }
         }
     },
@@ -141,6 +151,7 @@ var playState = {
         game.physics.arcade.collide(player, platforms);
         toManage();
         insertBlock();
+        this.bg.tilePosition.x -= 1;
         count++;
     }
 }
@@ -188,6 +199,7 @@ function restartTheGame() {
 function backToTheMenu() {
     score=0;
     music.destroy();
+    createdBlocks=[];
     game.state.start('menu');
 }
 
@@ -234,7 +246,7 @@ function generateBlock(space) {
         createdBlocks.push(block);
 
     }
-    checkingThereIsOnScrean();
+  // checkingThereIsOnScrean();
     abscis+=3*WIDTH_BLOCK;
 }
 
@@ -242,10 +254,12 @@ function generateBlock(space) {
 
 
 
-function checkingThereIsOnScrean() {
-    if(player.body.x-createdBlocks[0].body.x>1000)
-        createdBlocks.shift().destroy();
-}
+// function checkingThereIsOnScrean() {
+//      //console.log(createdBlocks[0].body.x);
+//         if (player.body.x - createdBlocks[0].body.x > 1000)
+//             createdBlocks.shift().destroy();
+//
+// }
 
 function insertBlock() {
     if(count%5==0&&count%60==0&&count!=0){
