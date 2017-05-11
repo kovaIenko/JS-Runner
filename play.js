@@ -1,46 +1,40 @@
 /**
  * Created by admin on 06.04.2017.
  */
+var platforms; // група об'єктів, на яких Персонаж буде пригати
+var player;
+var score =0;
+var pause_label;
+var sounds;
+var current;
+var loopCount = 0;
+var start_;
+var end_;
+var center_;
+var Score;
+var timer;
+var total = 0;
+var Label;
+
+var current=0; //змінна дл отриманн, поточного значення блоку
+
 
 
 const HEIGTH_PERSON=70;
 const HEIGTH_GROUND=122;
 const  COUNT=50;
-const HEIGTH_BLOCK=15;
-const WIDTH_BLOCK=40;
+const HEIGTH_BLOCK=25;
 const HEIGHT_SCREEN = 500;
 const WIDTH_SCREEN = 800;
 
 
-var platforms; // група об'єктів, на яких Персонаж буде пригати
-var player;
-
-var pause_label;
-var sounds;
-var loopCount = 0;
-var block;
-var abscis =10;
-var bullets;
-var current=0; //змінна дл отриманн, поточного значення блоку
-
-
-var pattern=['tile3','tile4','tile5']; //масив шаблонів ступенів
-var sizePattern=[3*WIDTH_BLOCK,4*WIDTH_BLOCK,5*WIDTH_BLOCK];
-
 var playState = {
     create: function () {
 //Фізика
-       game.physics.startSystem(Phaser.Physics.ARCADE);
+        //game.physics.startSystem(Phaser.Physics.ARCADE);
+        game.add.sprite(0, 0, 'background');
 
-       // game.physics.startSystem(Phaser.Physics.P2JS);
-     //   game.physics.p2.restitution = 0.9;
-      var land = game.add.sprite(0, 0, 'background');
-        game.physics.arcade.enable(land); //фізика для персонажа
-        land.enableBody = true;
-        land.body.gravity.x=30;
-        game.camera.x+= 30;
-        game.world.setBounds(0,0, 50000000000000000, 490);
-       // music = game.add.audio('music');
+        music = game.add.audio('music');
 
         sounds = [music];
 
@@ -49,50 +43,51 @@ var playState = {
 
         // Створюємо групу для бордюрів, на які Персонаж буде пригати
         platforms = game.add.group();
+        platforms.physicsBodyType = Phaser.Physics.ARCADE;
         platforms.enableBody = true;  //фізика для цієї групи
         game.physics.enable(platforms, Phaser.Physics.ARCADE);
 
 
-
-
-        player = game.add.sprite(WIDTH_SCREEN*0.4,game.world.height/2, 'person');
+        player = game.add.sprite(300, game.world.height - HEIGTH_GROUND - HEIGTH_PERSON - 300, 'person');
         game.physics.arcade.enable(player); //фізика для персонажа
 
 
         // animation
         player.animations.add('run');
-       // player.animations.add('stop', [0004], 20, true);
-        player.animations.play('run', 80, true);
-        player.scale.setTo(0.3);
-        player.enableBody = true;  //фізика для цієї групи
-        player.body.gravity.y = 1500;
-        player.body.gravity.x =15;
-        //player.body.gravity.x+=0.3;
-        player.anchor.setTo(0.5, 1);
-        game.camera.follow(player, Phaser.Camera.FOLLOW_LOCKON, 0.1);
-       // game.camera.deadzone = new Phaser.Rectangle(150, 150, 500, 300);
-        //game.camera.focusOnXY(0, 0);
+        player.animations.play('run', 40, true);
+        player.scale.setTo(0.429);
 
-
-
-        game.camera.follow(player, Phaser.Camera.FOLLOW_PLATFORMER);
-
-
-        bullets = game.add.group();
-        bullets.enableBody = true;
-        bullets.physicsBodyType = Phaser.Physics.ARCADE;
-        bullets.createMultiple(100, 'bullet');
-       bullets.setAll('anchor.x', 0.5);
-        bullets.setAll('anchor.y', 1);
-      //  bullets.setAll('outOfBoundsKill', true);
-      //  bullets.setAll('checkWorldBounds', true);
+        //фізика для персонажа
+        game.physics.enable(player, Phaser.Physics.ARCADE);
+        //  Налаштування персонажа
+        player.body.bounce.set(0.1);
+        // player.body.immovable = true;
+        player.body.gravity.y = 300; //швидше буде падати
+        //changing music volume due to settings
+        music.volume= LevelOfSound/100;
 
         cursors = game.input.keyboard.createCursorKeys();
+        //timer = game.time.create(false);
+        Label =  game.add.text(450,20,"SCORE: ",{font:'30px Monotype Corsiva',fill:"#62C908"});
+        Score = game.add.text(550,10,score,{font:'50px Monotype Corsiva',fill:"#62C908"});
+        //  Create our Timer
+        timer = game.time.create(false);
 
+        //  Set a TimerEvent to occur after 2 seconds
+        timer.loop(1000, updateCounter, this);
 
+        //  Start the timer running - this is important!
+        //  It won't start automatically, allowing you to hook it to button events and the like.
+        timer.start();
+        //updating timer
+        function updateCounter() {
+
+            total++;
+            score =score + 1;
+        }
 
         // Меню паузи
-        pause_label = game.add.text(WIDTH_SCREEN - 100, 20, 'Pause', {font: '24px Arial', fill: '#fff'});
+        pause_label = game.add.text(WIDTH_SCREEN - 150, 10, 'Pause', {font:'40px Monotype Corsiva',fill:"#62C908"});
         pause_label.inputEnabled = true;
         pause_label.events.onInputUp.add(function () {
             game.paused = true;
@@ -100,6 +95,8 @@ var playState = {
             restart = game.add.button(-80, 50, 'restart', actionOnClick, this, 2, 1, 0);
             exit = game.add.button(160, 200, 'exit', actionOnClick, this, 2, 1, 0);
             exit.onInputDown.add(backToTheMenu,this);
+
+
         });
 
         function actionOnClick() {
@@ -113,8 +110,6 @@ var playState = {
                 // Calculate the corners of the menu
                 var x1 = game.world.centerX - 95, x2 = game.world.centerX - 40,
                     y1 = 400, y2 = 500;
-
-                // button.onInputOver.add(over, this);
                 // Check if the click was inside the menu
                 if (event.x > 100 && event.x < 292 && event.y > 50 && event.y < 125) {
                     resume.destroy();
@@ -126,108 +121,21 @@ var playState = {
                     restartTheGame();
                 }
                 if (event.x > 150 && event.x < 342 && event.y > 200 && event.y < 275) {
+                    console.log("ldsjf");
                     music.destroy();
+                    score = 0;
                     game.paused = false;
                     game.state.start("load");
                 }
             }
         }
-
     },
-
-
-
-
 
     update: function () {
         game.physics.arcade.collide(player, platforms);
         toManage();
-        insertBlock();
-        count++;
-
-
-
     }
 }
-
-  var  bullet;
-   var bulletTime=0;
-function fireBullet() {
-
-
-    if (game.time.now > bulletTime)
-    {
-        //  Grab the first bullet we can from the pool
-        bullet = bullets.getFirstExists(false);
-
-        if (bullet)
-        {
-            //  And fire it
-            bullet.reset(player.x, player.y + 8);
-            bullet.body.velocity.x=50;
-            bulletTime = game.time.now + 200;
-        }
-    }
-
-
-    //  Start the timer running - this is important!
-    //  It won't start automatically, allowing you to hook it to button events and the like.
-
-        //  Grab the first bullet we can from the pool
-
-            bullet = game.add.sprite(player.body.x+25, player.body.y+20, 'bullet');
-    bullet.scale.setTo(0.06);
-    game.physics.arcade.enable(bullet);
-    bullet.enableBody = true;  //фізика для цієї групи
-   bullet.body.gravity.x = 300;
-    console.log(total);
-
-
-
-
-
-
-
-    }
-
-var createdBlocks=[];
-function  generateBlock(space) {
-    if(space) {
-        block = platforms.create(abscis, 25 * HEIGTH_BLOCK, select(0));
-        //block.body.velocity.x = -220;
-        block.scale.setTo(0.5);
-        block.body.immovable = true;
-        createdBlocks.push(block);
-        checkingThereIsOnScrean();
-    }
-    abscis+=3*WIDTH_BLOCK;
-}
-
-
-function select(rgen) {
-    return pattern[rgen];
-
-}
-
-
-function checkingThereIsOnScrean() {
-    if(createdBlocks[0].body.x+150<0)
-        createdBlocks.shift().destroy();
-}
-
-function insertBlock() {
-    if(count%5==0&&count%60==0&&count!=0){
-        generateBlock(false);
-       // return ;
-        count++;
-    }
-
-    if(count%5==0)
-        generateBlock(true);
-}
-
-var count=0;
-
 function start() {
     sounds.shift();
     music.loopFull(0.6);
@@ -262,17 +170,22 @@ function restartTheGame() {
     // back.destroy();
     music.destroy();
     //create();
+    score =0;
     soundOFF = false;
     game.paused = false;
     game.state.start('play');
 }
 
 function backToTheMenu() {
+    score=0;
+    music.destroy();
     game.state.start('menu');
 }
 
 
 function render() {
+    game.debug.soundInfo(music, 20, 32);
+    Score.setText(score);
     game.debug.soundInfo(music, 20, 32);
 }
 
@@ -295,16 +208,9 @@ function toManage() {
         player.body.velocity.x+=5;
        // player.body.setZeroVelocity();
     }
-
-}
-
-function rigthRandom(rgen)
-{
-
-    while(rgen==current_rgen) {
-        rgen = getRandomInt(0, 2);
+   if(player.y>500){
+        game.state.start("LostMenu");
     }
-    return rgen;
+    Score.setText(score);
 
 }
-
