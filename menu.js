@@ -7,9 +7,7 @@ var menuState =
 {
     preload: function () {
         game.load.image('background', 'img/back.png');
-        game.load.image('start', "img/first.png");
-        game.load.image('center', "img/center.png");
-        game.load.image('end', "img/end.png");
+        game.load.image('tile', "img/tiles3.png");
         game.load.atlasJSONHash('person', 'player.png', 'player.json');
 
 // PauseMenu
@@ -17,16 +15,13 @@ var menuState =
         //game.load.image('options', "img/PauseMenu/options.png");
         game.load.image('restart', "img/PauseMenu/restart2.png");
         game.load.image('resume', "img/PauseMenu/resume2.png");
-        game.load.image('back', "img/PauseMenu/back.png");
-        game.load.image('musicOn', "img/PauseMenu/musicOn.jpg");
-        game.load.image('musicOFF', "img/PauseMenu/musicOFF.jpg");
         game.load.image('menuStart', "img/PauseMenu/menuStart.jpg");
         game.load.image('menuSet', "img/PauseMenu/menuSet.jpg");
 
         game.load.image('bullet','img/bullet.png')
 
         //music
-        game.load.audio('music',"Music/FloRida.mp3");
+       // game.load.audio('music',"Music/tobi.mp3");
         //game.state.start('menu');
     },
     create : function () {
