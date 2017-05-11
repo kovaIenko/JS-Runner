@@ -4,6 +4,7 @@
 var loadState =
 {
     preload: function () {
+<<<<<<< HEAD:js/load.js
 //         game.load.image('background', 'img/back.png');
 //        game.load.image('tile3', "img/tiles3");
       //  game.load.image('tile4', "img/tiles4");
@@ -23,6 +24,8 @@ var loadState =
 //         // game.state.add('menu', menuState, false);
 //         //music
 //         game.load.audio('music',"Music/FloRida.mp3");
+=======
+>>>>>>> origin/master:load.js
         game.state.start('menu');
     }
 
