@@ -20,6 +20,7 @@ var current=0; //змінна дл отриманн, поточного знач
 var resume;
 var restart;
 var exit;
+var enemy;
 
 
 const HEIGTH_PERSON=70;
@@ -31,6 +32,10 @@ const HEIGHT_SCREEN = 500;
 const WIDTH_SCREEN = 800;
    var back;
 
+   var enemies;
+var  enemyBullets;
+var bullets;
+var bullet;
 var playState = {
     create: function () {
 //Фізика
@@ -58,22 +63,46 @@ var playState = {
         game.physics.enable(platforms, Phaser.Physics.ARCADE);
 
 
-        player = game.add.sprite(300, game.world.height - HEIGTH_GROUND - HEIGTH_PERSON - 300, 'person');
+        player = game.add.sprite(WIDTH_SCREEN/2, 300, 'person');
         game.physics.arcade.enable(player); //фізика для персонажа
 
         player.enableBody = true; //фізика для цієї групи
         player.body.gravity.y = 1500;
-        player.body.gravity.x =18;
+        player.body.gravity.x=19;
+
 
           //player.body.gravity.x+=0.3;
 
         // animation
         player.animations.add('run');
-        player.animations.play('run', 120, true);
+        player.animations.play('run', 80, true);
         player.scale.setTo(0.3);
 
         game.camera.follow(player, Phaser.Camera.FOLLOW_LOCKON, 0.1);
-        game.camera.velocity= 18;
+        game.camera.velocity= 29;
+
+        enemies = game.add.group();
+        enemies.enableBody = true;
+        enemies.physicsBodyType = Phaser.Physics.ARCADE;
+
+        enemyBullets = game.add.group();
+        enemyBullets.enableBody = true;
+        enemyBullets.physicsBodyType = Phaser.Physics.ARCADE;
+        enemyBullets.createMultiple(100, 'bullet');
+        enemyBullets.setAll('anchor.x', 0.5);
+        enemyBullets.setAll('anchor.y', 1);
+        enemyBullets.setAll('outOfBoundsKill', true);
+        enemyBullets.setAll('checkWorldBounds', true);
+
+        bullets = game.add.group();
+        bullets.enableBody = true;
+        bullets.physicsBodyType = Phaser.Physics.ARCADE;
+        bullets.createMultiple(300, 'bullet');
+        bullets.setAll('anchor.x', 0.5);
+        bullets.setAll('anchor.y', 1);
+        bullets.setAll('outOfBoundsKill', true);
+        bullets.setAll('checkWorldBounds', true);
+
         music.volume= LevelOfSound/100;
 
         cursors = game.input.keyboard.createCursorKeys();
@@ -151,6 +180,7 @@ var playState = {
         game.physics.arcade.collide(player, platforms);
         toManage();
         insertBlock();
+        insertEnemy();
         this.bg.tilePosition.x -= 1;
         count++;
     }
@@ -219,20 +249,29 @@ function toManage() {
     fireButton = game.input.keyboard.addKey(Phaser.Keyboard.SPACEBAR);
     cursors = game.input.keyboard.createCursorKeys();
 
-    if(fireButton.onUp.isDown) {
+    if(fireButton.isDown) {
         fireBullet();
     }
 
     if (cursors.up.isDown&&player.body.touching.down)
     {
         player.body.velocity.y-=500;
-        player.body.velocity.x+=5;
+        //player.body.velocity.x+=5;
        // player.body.setZeroVelocity();
     }
+
    if(player.y>500){
         game.state.start("LostMenu");
     }
+    if(bullet&&bullet.body.x-player.body.x>300)
+        bullet.kill();
+
     Score.setText(score);
+    game.physics.arcade.overlap(bullets, enemies, collisionHandler, null, this);
+    game.physics.arcade.overlap(enemies, player, collision, null, this);
+
+    game.physics.arcade.overlap(bullets, player, bulletsDead, null, this);
+
 
 }
   var abscis=10;
@@ -240,7 +279,7 @@ var createdBlocks=[];
 function generateBlock(space) {
     if(space) {
         block = platforms.create(abscis, 25*HEIGTH_BLOCK, 'tile');
-//block.body.velocity.x = -220;
+block.body.velocity.x = -4;
         block.scale.setTo(0.5);
         block.body.immovable = true;
         createdBlocks.push(block);
@@ -251,9 +290,6 @@ function generateBlock(space) {
 }
 
 
-
-
-
 // function checkingThereIsOnScrean() {
 //      //console.log(createdBlocks[0].body.x);
 //         if (player.body.x - createdBlocks[0].body.x > 1000)
@@ -262,12 +298,92 @@ function generateBlock(space) {
 // }
 
 function insertBlock() {
-    if(count%5==0&&count%60==0&&count!=0){
+    var n=3;
+    if(count%n==0&&count%getRandomInt(n+7,n+13)==0&&count!=0){
         generateBlock(false);
 // return ;
         count++;
     }
 
-    if(count%5==0)
+    if(count%n==0)
         generateBlock(true);
+}
+
+function insertEnemy() {
+    if(count%5==0&&count%30==0)
+        generateEnemy();
+
+}
+   const HEIGTH_ENEMY=25;
+function  generateEnemy() {
+    enemy = enemies.create(abscis+400, 25 * HEIGTH_BLOCK - HEIGTH_ENEMY, 'enemy');
+    enemy.anchor.setTo(0.5, 0.5);
+    enemy.scale.setTo(0.85);
+    enemy.animations.add('pEnemy', [0, 1, 2, 3, 4, 5], 12, true);
+    enemy.play('pEnemy');
+    enemy.body.moves = false;
+
+}
+
+var  firingTimer=0;
+   /* function enemyFires () {
+
+        //  Grab the first bullet we can from the pool
+        enemyBullet = enemyBullets.getFirstExists(false);
+       var al=enemies.getFirstExists(false);
+
+
+
+        if (enemyBullet&&al&&al.body.x-player.body.x>300)
+        {
+            alert(al.body.x);
+            enemyBullet.scale.setTo(0.05);
+            enemyBullet.reset(al.body.x,al.body.y);
+            enemyBullet.body.velocity.x = -400;
+            firingTimer= game.time.now + 600;
+        }
+
+    }
+*/
+  var bulletTime=0;
+function fireBullet () {
+
+    //  To avoid them being allowed to fire too fast we set a time limit
+    if (game.time.now > bulletTime)
+    {
+        //  Grab the first bullet we can from the pool
+        bullet = bullets.getFirstExists(false);
+
+
+        if (bullet)
+        {
+            bullet.scale.setTo(0.05);
+            //  And fire it
+            bullet.reset(player.x+10, player.y + 25);
+            bullet.body.velocity.x = 400;
+            bullet.body.velocity.x+=50;
+            bulletTime = game.time.now + 200;
+        }
+    }
+
+}
+
+function collisionHandler (bullet, enemy) {
+    if(bullet.body.x>=enemy.body.x||bullet.body.x<=enemy.body.x) {
+        bullet.kill();
+        enemy.kill();
+    }
+
+}
+
+function collision(player,enemy) {
+    player.kill();
+    enemy.kill;
+    game.state.start("LostMenu");
+}
+
+function bulletsDead(bullet,player) {
+    if(bullet.body.x-player.body.x>300)
+        bullet.kill();
+
 }

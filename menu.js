@@ -9,7 +9,8 @@ var menuState =
         //game.load.image('background', 'img/back.png');
         game.load.image('background', 'img/wallPaper.jpg');
         game.load.image('tile', "img/tiles3.png");
-        game.load.atlasJSONHash('person', 'player.png', 'player.json');
+        game.load.atlasJSONHash('person', 'player.png', 'player.json')
+        game.load.atlasJSONHash('enemy', 'enemy.png', 'enemy.json');
 
 // PauseMenu
         game.load.image('exit', "img/PauseMenu/exit2.png");
