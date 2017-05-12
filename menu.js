@@ -6,7 +6,8 @@ var music;
 var menuState =
 {
     preload: function () {
-        game.load.image('background', 'img/back.png');
+        //game.load.image('background', 'img/back.png');
+        game.load.image('background', 'img/wallPaper.jpg');
         game.load.image('tile', "img/tiles3.png");
         game.load.atlasJSONHash('person', 'player.png', 'player.json');
 
@@ -20,8 +21,8 @@ var menuState =
 
         game.load.image('bullet','img/bullet.png')
 
-        //music
-       // game.load.audio('music',"Music/tobi.mp3");
+        music
+       game.load.audio('music',"Music/tobi.mp3");
         //game.state.start('menu');
     },
     create : function () {

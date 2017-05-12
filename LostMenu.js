@@ -21,6 +21,7 @@ var lostState =
     },
     start: function () {
         score =0;
+        createdBlocks=[];
         music.destroy();
         game.state.start('boot');
     },
