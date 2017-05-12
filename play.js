@@ -64,7 +64,7 @@ var playState = {
         player.enableBody = true; //фізика для цієї групи
         player.body.gravity.y = 1500;
         player.body.gravity.x =18;
-
+        insertBlock();
           //player.body.gravity.x+=0.3;
 
         // animation
@@ -138,6 +138,8 @@ var playState = {
                     console.log("ldsjf");
                     music.destroy();
                     score = 0;
+                    abscis=10;
+                    count=0;
                     createdBlocks=[];
                     game.paused = false;
                     game.state.start("load");
@@ -191,6 +193,8 @@ function restartTheGame() {
     music.destroy();
     //create();
     score =0;
+    abscis=10;
+    count=0;
     soundOFF = false;
     game.paused = false;
     game.state.start('play');
