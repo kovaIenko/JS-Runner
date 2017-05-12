@@ -64,7 +64,7 @@ var playState = {
         player.enableBody = true; //фізика для цієї групи
         player.body.gravity.y = 1500;
         player.body.gravity.x =18;
-        insertBlock();
+        //insertBlock();
           //player.body.gravity.x+=0.3;
 
         // animation
